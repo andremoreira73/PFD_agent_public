@@ -2,6 +2,10 @@
 
 A Django-based web application for analyzing Process Flow Diagrams (PFDs) using AI/LLM technology. The system extracts equipment and connectivity information from DXF files and generates detailed process descriptions.
 
+<img src="img_readme/AmineTreating.png" width="600">
+
+Source: https://en.wikipedia.org/wiki/Process_flow_diagram
+
 ## Overview
 
 PFD Agent consists of two main applications:
@@ -30,8 +34,6 @@ If you have your own Autocad drawings, you only need to save them as a dxf file 
   - Measure accuracy, precision, and recall
   - Lock runs to prevent accidental modifications
 
-Here's a short description for your README:
-
 ## AI Processing Pipeline
 
 The system uses a two-stage AI pipeline:
@@ -42,16 +44,28 @@ The system uses a two-stage AI pipeline:
 2. **Auditor Agent**: Reviews and corrects the worker's output
 3. **Output**: Structured table of equipment with connectivity
 
+<img src="img_readme/PFD_architecture_july_2025_g1.png" width="600">
+
 ### Stage 2: Description Generation
 
 1. **Generator Agent**: Creates process description from reviewed table
 2. **Output**: Detailed narrative of the process flow
 
+<img src="img_readme/PFD_architecture_july_2025_g2.png" width="600">
+
 ### Performance Evolution
 
 The graph below shows the evaluation results of our PFD analysis system over 60+ test runs on increasingly complex 10 PFD samples:
 
-![image](img_readme/PFD_stats.png)
+<img src="img_readme/PFD_stats.png" width="1000">
+
+**Evaluation methodology:**
+
+The evaluation shown in the graph is human-based. Once a connectivity table is generated, a person checks if:
+
+1. Each piece of equipment was found and correctly named
+2. The number of inlets and their origin is correctly identified
+3. The number of outlets and their destinations are correctly identified
 
 **Key milestones:**
 
@@ -65,8 +79,10 @@ The system now consistently achieves high precision and recall (>90%) across div
 
 ### Under Development
 
-Observer parallel workflow that self improves the equipment extraction and description. Planned to be a combination
-of automatic prompt updates and fine-tuning (dataset / suggestion generation, testing, deployment).
+- Auditor step in during Description Generation.
+
+- Observer parallel workflow that self improves the equipment extraction and description. Planned to be a combination
+  of automatic prompt updates and fine-tuning (dataset / suggestion generation, testing, deployment).
 
 ## Tech Stack
 
