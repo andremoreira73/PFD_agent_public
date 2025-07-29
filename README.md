@@ -150,7 +150,7 @@ PFD_agent/
 4. **Set up environment variables**
 
    ```bash
-   cp .env.example .env  # Create this file with the following content
+   cp example.env .env  # Edit .env and add your API keys
    ```
 
    Required environment variables:
