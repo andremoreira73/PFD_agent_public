@@ -1,0 +1,99 @@
+<!-- templates/pfd_analyzer/upload_pdf.html -->
+{% extends 'pfd_analyzer/base_analyzer.html' %}
+<!---->
+{% block title %} Upload PDF - PFD Analyzer {% endblock %}
+<!-- -->
+{% block content %}
+<div class="max-w-2xl mx-auto">
+  <!-- Header -->
+  <div class="bg-white shadow rounded-lg p-6 mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Upload PDF</h1>
+    <p class="text-gray-600 mt-1">
+      Upload a PFD (Process Flow Diagram) for analysis
+    </p>
+  </div>
+
+  <!-- Upload Form -->
+  <div class="bg-white shadow rounded-lg p-6">
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+      {% csrf_token %}
+
+      <!-- PDF Name -->
+      <div>
+        <label
+          for="{{ form.name.id_for_label }}"
+          class="block text-sm font-medium text-gray-700 mb-2"
+        >
+          PDF Name <span class="text-red-500">*</span>
+        </label>
+        {{ form.name }} {% if form.name.errors %}
+        <p class="mt-1 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+        {% endif %}
+        <p class="mt-1 text-sm text-gray-500">
+          Give this PDF a descriptive name for easy identification
+        </p>
+      </div>
+
+      <!-- File Upload -->
+      <div>
+        <label
+          for="{{ form.file.id_for_label }}"
+          class="block text-sm font-medium text-gray-700 mb-2"
+        >
+          PDF File <span class="text-red-500">*</span>
+        </label>
+        {{ form.file }} {% if form.file.errors %}
+        <p class="mt-1 text-sm text-red-600">{{ form.file.errors.0 }}</p>
+        {% endif %}
+        <p class="mt-1 text-sm text-gray-500">
+          Select a PDF file to upload (max file size depends on server settings)
+        </p>
+      </div>
+
+      <!-- Form Actions -->
+      <div
+        class="flex items-center justify-between pt-4 border-t border-gray-200"
+      >
+        <a
+          href="{% url 'pfd_analyzer:file_list' %}"
+          class="text-gray-600 hover:text-gray-900 text-sm font-medium"
+        >
+          <i class="fas fa-arrow-left mr-1"></i> Back to Files
+        </a>
+        <div class="space-x-3">
+          <a
+            href="{% url 'pfd_analyzer:dashboard' %}"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+          >
+            Cancel
+          </a>
+          <button
+            type="submit"
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            <i class="fas fa-upload mr-2"></i>
+            Upload PDF
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Upload Tips -->
+  <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
+    <h3 class="text-sm font-medium text-blue-800 mb-2">
+      <i class="fas fa-lightbulb mr-1"></i> Upload Tips
+    </h3>
+    <ul class="text-sm text-blue-700 space-y-1">
+      <li>• Use descriptive names to easily identify your PDFs later</li>
+      <li>• Supported format: PDF files only</li>
+      <li>
+        • After upload, you can create multiple analysis runs for each PDF
+      </li>
+      <li>
+        • Files are stored securely and only accessible to authenticated users
+      </li>
+    </ul>
+  </div>
+</div>
+{% endblock %}

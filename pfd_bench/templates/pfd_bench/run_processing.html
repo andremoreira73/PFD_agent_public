@@ -1,0 +1,65 @@
+<!-- pfd_bench/templates/pfd_bench/run_processing.html -->
+{% extends 'pfd_bench/base_bench.html' %}
+<!-- -->
+{% block title %}Processing - {{ run.name }}{%endblock %}
+<!-- -->
+{% block content %}
+<div class="min-h-screen bg-gray-50 flex items-center justify-center">
+  <div class="bg-white rounded-lg shadow-lg p-8 max-w-md w-full text-center">
+    <div class="mb-6">
+      <!-- Animated spinner -->
+      <div class="inline-flex items-center justify-center w-16 h-16 mb-4">
+        <div
+          class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"
+        ></div>
+      </div>
+
+      <h2 class="text-2xl font-semibold text-gray-900 mb-2">
+        Processing Your File
+      </h2>
+      <p class="text-gray-600">
+        AI is analyzing <span class="font-medium">{{ run.file.name }}</span>
+      </p>
+    </div>
+
+    <div class="bg-blue-50 rounded-lg p-4 mb-6">
+      <p class="text-sm text-blue-800">
+        <i class="fas fa-info-circle mr-2"></i>
+        Processing happens in the background. You can safely leave this page and
+        return later.
+      </p>
+    </div>
+
+    <div class="space-y-3">
+      <!-- Auto-refresh to check status -->
+      <div
+        hx-get="{% url 'pfd_bench:check_run_status' run.id %}"
+        hx-trigger="every 2s"
+        hx-swap="none"
+      ></div>
+
+      <a
+        href="{% url 'pfd_bench:project_detail' run.project.id %}"
+        class="inline-block px-6 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+      >
+        Back to Project
+      </a>
+    </div>
+
+    <div class="mt-6 text-xs text-gray-500">
+      Run ID: {{ run.id }} • Started:
+      <!---->
+      {{ run.processing_started_at|date:"g:i A"}}
+    </div>
+  </div>
+</div>
+
+<script>
+  // Auto-redirect when processing is complete
+  document.body.addEventListener("htmx:beforeSwap", function (event) {
+    if (event.detail.xhr.status === 303) {
+      window.location.href = event.detail.xhr.getResponseHeader("Location");
+    }
+  });
+</script>
+{% endblock %}

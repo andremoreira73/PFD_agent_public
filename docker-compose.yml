@@ -1,0 +1,84 @@
+services:
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=pfd_agent_dev
+      - POSTGRES_USER=pfduser
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    ports:
+      - "5433:5432" # Optional: for external DB access
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pfduser -d pfd_agent_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    # env_file: .env  # in case we want to pass all of it - safer NOT
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app # Live code reloading
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DJANGO_SETTINGS_MODULE=PFD_agent.settings.local
+      - DATABASE_URL=postgresql://pfduser:${DB_PASSWORD}@db:5432/pfd_agent_dev
+      - PYTHONUNBUFFERED=1
+      # Pass through API keys
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - LANGCHAIN_API_KEY=${LANGCHAIN_API_KEY}
+      - LANGSMITH_ENDPOINT=${LANGSMITH_ENDPOINT}
+      - LANGCHAIN_TRACING_V2=${LANGCHAIN_TRACING_V2}
+      - LANGCHAIN_PROJECT=${LANGCHAIN_PROJECT}
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379" # Optional: for debugging with Redis CLI
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  celery:
+    build: .
+    command: celery -A PFD_agent worker -l info
+    volumes:
+      - .:/app # Same as web for live reloading
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DJANGO_SETTINGS_MODULE=PFD_agent.settings.local
+      - DATABASE_URL=postgresql://pfduser:${DB_PASSWORD}@db:5432/pfd_agent_dev
+      - PYTHONUNBUFFERED=1
+      # Pass through API keys
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - LANGCHAIN_API_KEY=${LANGCHAIN_API_KEY}
+      - LANGSMITH_ENDPOINT=${LANGSMITH_ENDPOINT}
+      - LANGCHAIN_TRACING_V2=${LANGCHAIN_TRACING_V2}
+      - LANGCHAIN_PROJECT=${LANGCHAIN_PROJECT}
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+
+  tailwind:
+    build: .
+    command: python manage.py tailwind start
+    volumes:
+      - .:/app
+    environment:
+      - DJANGO_SETTINGS_MODULE=PFD_agent.settings.local
+
+volumes:
+  postgres_data_dev:

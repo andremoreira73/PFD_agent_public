@@ -1,0 +1,145 @@
+<!-- pfd_bench/templates/pfd_bench/run_completed.html -->
+{% extends 'pfd_bench/base_bench.html' %}
+<!-- -->
+{% block title %}{{ run.name }} - Completed {% endblock%}
+<!-- -->
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+  <!-- Breadcrumbs -->
+  <div class="bg-white border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+      <nav class="text-sm text-gray-500">
+        <a href="{% url 'pfd_bench:dashboard' %}" class="hover:text-gray-700"
+          >Projects</a
+        >
+        <span class="mx-2">/</span>
+        <a
+          href="{% url 'pfd_bench:project_detail' run.project.id %}"
+          class="hover:text-gray-700"
+          >{{ run.project.name }}</a
+        >
+        <span class="mx-2">/</span>
+        <span class="text-gray-900">{{ run.name }}</span>
+      </nav>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+      <div class="flex items-center">
+        <i class="fas fa-check-circle text-green-600 text-xl mr-3"></i>
+        <span class="text-green-800 font-medium">COMPLETED RUN</span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Run Information -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-semibold mb-4">Run Information</h2>
+
+        <dl class="space-y-3">
+          <div>
+            <dt class="text-sm text-gray-500">Attached to project</dt>
+            <dd class="font-medium">{{ run.project.name }}</dd>
+          </div>
+          <div>
+            <dt class="text-sm text-gray-500">Attached to file</dt>
+            <dd class="font-medium">{{ run.file.name }}</dd>
+          </div>
+          <div>
+            <dt class="text-sm text-gray-500">Equipment items</dt>
+            <dd class="font-medium">{{ stats.total_equipment }}</dd>
+          </div>
+          <div>
+            <dt class="text-sm text-gray-500">User modifications</dt>
+            <dd class="font-medium">{{ stats.modifications_made }}</dd>
+          </div>
+          <div>
+            <dt class="text-sm text-gray-500">Completed</dt>
+            <dd class="font-medium">
+              {{ run.completed_at|date:"M d, Y g:i A" }}
+            </dd>
+          </div>
+          <div>
+            <dt class="text-sm text-gray-500">Completed by</dt>
+            <dd class="font-medium">{{ run.completed_by.username }}</dd>
+          </div>
+        </dl>
+
+        <!-- AI Confidence Placeholder -->
+        <div class="mt-6 p-4 bg-gray-50 rounded">
+          <p class="text-sm text-gray-600">
+            <i class="fas fa-chart-line mr-2"></i>
+            AI Confidence Score: <span class="font-medium">Coming Soon</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Process Description -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-semibold mb-4">Process Description</h2>
+
+        {% if run.generated_text %}
+        <div class="prose prose-sm max-w-none">
+          {{ run.generated_text|linebreaks }}
+        </div>
+        {% else %}
+        <div class="bg-gray-50 rounded p-8 text-center">
+          <i class="fas fa-file-alt text-gray-300 text-4xl mb-3"></i>
+          <p class="text-gray-500">Process description will appear here</p>
+          <p class="text-sm text-gray-400 mt-2">
+            Generated after equipment review
+          </p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Export Actions -->
+    <div class="mt-8 bg-white rounded-lg shadow p-6">
+      <h3 class="text-lg font-semibold mb-4">Export Options</h3>
+
+      <div class="flex flex-wrap gap-4">
+        <a
+          href="{% url 'pfd_bench:export_equipment_csv' run.id %}"
+          class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          <i class="fas fa-file-csv mr-2"></i>
+          Download Equipment Table (.csv)
+        </a>
+
+        {% if run.generated_text %}
+        <a
+          href="{% url 'pfd_bench:export_description' run.id %}"
+          class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+        >
+          <i class="fas fa-file-alt mr-2"></i>
+          Download Process Description (.txt)
+        </a>
+        {% endif %}
+
+        <button
+          onclick="navigator.clipboard.writeText(document.getElementById('process-text').innerText).then(() => alert('Copied to clipboard!'))"
+          class="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+        >
+          <i class="fas fa-copy mr-2"></i>
+          Copy Description
+        </button>
+      </div>
+    </div>
+
+    <!-- Back to Project -->
+    <div class="mt-6 text-center">
+      <a
+        href="{% url 'pfd_bench:project_detail' run.project.id %}"
+        class="text-blue-600 hover:text-blue-800"
+      >
+        ← Back to project
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden div for copy functionality -->
+<div id="process-text" class="hidden">{{ run.generated_text }}</div>
+{% endblock %}

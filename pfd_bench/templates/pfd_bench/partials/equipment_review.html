@@ -1,0 +1,148 @@
+<!-- pfd_bench/templates/pfd_bench/partials/equipment_review.html -->
+<div id="review-content">
+    <!-- Row indicator at top -->
+    <div class="mb-6 text-center text-sm text-gray-600">
+        Row {{ equipment.index|add:1 }} of {{ total_equipment }}
+    </div>
+
+    <!-- Equipment Data -->
+    <div id="equipment-data" class="space-y-4 mb-8">
+        <div>
+            <h2 id="tag" class="text-2xl font-bold" contenteditable="true">{{ equipment.tag }}</h2>
+            <span id="equipment_type" class="text-blue-600 text-lg mt-2 inline-block" contenteditable="true">{{ equipment.equipment_type }}</span>
+        </div>
+        
+        <div class="mt-6 space-y-4">
+            <div>
+                <h3 class="font-semibold text-gray-700">Inlet Streams ({{ equipment.inlet_count }})</h3>
+                <p id="inlet_streams" class="text-gray-700 mt-1 p-2 border border-transparent hover:border-gray-300 rounded" 
+                   contenteditable="true">{{ equipment.inlet_streams }}</p>
+            </div>
+            
+            <div>
+                <h3 class="font-semibold text-gray-700">Outlet Streams ({{ equipment.outlet_count }})</h3>
+                <p id="outlet_streams" class="text-gray-700 mt-1 p-2 border border-transparent hover:border-gray-300 rounded" 
+                   contenteditable="true">{{ equipment.outlet_streams }}</p>
+            </div>
+            
+            {% if equipment.remarks %}
+            <div>
+                <h3 class="font-semibold text-gray-700">Remarks</h3>
+                <p id="remarks" class="text-gray-700 mt-1 p-2 border border-transparent hover:border-gray-300 rounded"
+                   contenteditable="true">{{ equipment.remarks }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Actions Form -->
+    <form id="review-form"
+          hx-post="{% url 'pfd_bench:submit_review' run_id %}"
+          hx-target="#review-content"
+          hx-swap="outerHTML"
+          class="space-y-4">
+        {% csrf_token %}
+        <input type="hidden" name="equipment_index" value="{{ equipment.index }}">
+        
+        <!-- Action Buttons Row -->
+        <div class="flex space-x-4 mb-6">
+            <button type="submit" 
+                    name="action" 
+                    value="approve"
+                    class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                No changes / Revert to original
+            </button>
+            <button type="submit" 
+                    id="submit-changes-btn"
+                    name="action" 
+                    value="submit_changes"
+                    disabled
+                    class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 opacity-50 cursor-not-allowed transition-colors">
+                Submit changes
+            </button>
+            
+        </div>
+        
+        <!-- Navigation Row -->
+        <div class="flex items-center justify-between space-x-4 mb-4">
+            <button type="button"
+                    hx-get="{% url 'pfd_bench:get_equipment_row' run_id %}"
+                    hx-vals='{"index": {{ equipment.index|add:"-1" }}}'
+                    hx-target="#review-content"
+                    hx-swap="outerHTML"
+                    {% if equipment.index == 0 %}disabled{% endif %}
+                    class="px-4 py-2 bg-gray-500 text-white rounded {% if equipment.index == 0 %}opacity-50 cursor-not-allowed{% else %}hover:bg-gray-600{% endif %}">
+                <i class="fas fa-arrow-left mr-2"></i>Back
+            </button>
+            
+            <div class="flex items-center space-x-2">
+                <label class="text-sm">Jump to row:</label>
+                <input type="number" 
+                       id="goto-row" 
+                       min="1" 
+                       max="{{ total_equipment }}"
+                       value="{{ equipment.index|add:1 }}"
+                       class="w-16 px-2 py-1 border rounded"
+                       onkeypress="if(event.key === 'Enter') { event.preventDefault(); jumpToRow(this.value - 1); return false; }"
+                       >
+                <button type="button"
+                        onclick="jumpToRow(document.getElementById('goto-row').value - 1)"
+                        class="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700">
+                    Go
+                </button>
+            </div>
+            
+            <button type="button"
+                    hx-get="{% url 'pfd_bench:get_equipment_row' run_id %}"
+                    hx-vals='{"index": {{ equipment.index|add:"1" }}}'
+                    hx-target="#review-content"
+                    hx-swap="outerHTML"
+                    {% if equipment.index == total_equipment|add:"-1" %}disabled{% endif %}
+                    class="px-4 py-2 bg-gray-500 text-white rounded {% if equipment.index == total_equipment|add:'-1' %}opacity-50 cursor-not-allowed{% else %}hover:bg-gray-600{% endif %}">
+                Forward<i class="fas fa-arrow-right ml-2"></i>
+            </button>
+
+            <button type="submit" 
+                    name="action" 
+                    value="save_draft"
+                    class="flex-1 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors">
+                <i class="fas fa-save mr-2"></i>Save as Draft
+            </button>
+            <!-- Finalize Run button - shows when all equipment is reviewed -->
+            {% if all_reviewed %}
+                <button type="submit"
+                        name="action"
+                        value="finalize_run"
+                        onclick="return confirm('Finalizing will lock this run and generate the text description. Continue?')"
+                        class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 text-lg font-semibold">
+                    <i class="fas fa-flag-checkered mr-2"></i>
+                    Finalize Run
+                </button>
+            {% endif %}
+        </div>
+        
+        
+    </form>
+</div>
+
+<!-- Update sidebar via out-of-band swap -->
+<div hx-swap-oob="innerHTML:#equipment-list">
+    {% for item in all_equipment %}
+    <div class="flex items-center p-2 rounded cursor-pointer transition-colors
+                {% if item.index == equipment.index %}bg-blue-100 border-l-4 border-blue-500{% else %}hover:bg-gray-100{% endif %}"
+         onclick="jumpToRow({{ item.index }})">
+        <span class="mr-2 text-lg">
+            {% if item.index in reviewed_indices %}
+                {% if item.has_changes %}<span class="text-amber-500">⚠️</span>
+                {% else %}<span class="text-green-500">✓</span>{% endif %}
+            {% else %}<span class="text-gray-400">○</span>{% endif %}
+        </span>
+        <span class="text-sm {% if item.index == equipment.index %}font-semibold{% endif %}">
+            {{ item.index|add:1 }}. {{ item.tag }} - {{ item.equipment_type }}
+        </span>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Update progress indicator -->
+<span id="progress" hx-swap-oob="true">{{ equipment.index|add:1 }} of {{ total_equipment }}</span>

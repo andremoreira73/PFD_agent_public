@@ -1,0 +1,70 @@
+<!-- templates/pfd_bench/partials/review_actions.html -->
+<form
+  hx-post="{% url 'pfd_bench:submit_review' run.id %}"
+  hx-target="#equipment-details"
+  hx-swap="outerHTML"
+  class="space-y-4"
+>
+  {% csrf_token %}
+  <input type="hidden" name="equipment_index" value="{{ equipment.index }}" />
+
+  <!-- Quick Actions -->
+  <div class="flex space-x-4">
+    <button
+      type="submit"
+      name="action"
+      value="approve"
+      class="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+    >
+      <i class="fas fa-check mr-2"></i>
+      No Changes Needed
+    </button>
+
+    <button
+      type="button"
+      onclick="toggleEditForm()"
+      class="flex-1 px-4 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition"
+    >
+      <i class="fas fa-edit mr-2"></i>
+      Make Changes
+    </button>
+  </div>
+
+  <!-- Edit Form (hidden by default) -->
+  <div id="edit-form" class="hidden space-y-4 mt-6">
+    <h4 class="font-medium">Correct the Equipment Data:</h4>
+
+    <!-- Editable fields -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700"
+        >Equipment Type</label
+      >
+      <input
+        type="text"
+        name="equipment_type"
+        value="{{ equipment.equipment_type }}"
+        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+      />
+    </div>
+
+    <!-- Add more fields for inlet/outlet streams -->
+
+    <div class="flex space-x-4">
+      <button
+        type="submit"
+        name="action"
+        value="save_changes"
+        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+      >
+        Save Changes & Continue
+      </button>
+      <button
+        type="button"
+        onclick="toggleEditForm()"
+        class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400"
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+</form>

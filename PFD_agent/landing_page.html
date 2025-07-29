@@ -1,0 +1,4 @@
+def home(request): accessible_apps = get_user_accessible_apps(request.user) #
+Auto-redirect if only one app if len(accessible_apps) == 1: return
+redirect(accessible_apps[0]['url_name']) return render(request, 'home.html',
+{'apps': accessible_apps})

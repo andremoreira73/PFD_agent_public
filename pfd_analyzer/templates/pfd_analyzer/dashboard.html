@@ -1,0 +1,179 @@
+<!-- templates/pfd_analyzer/dashboard.html -->
+{% extends 'pfd_analyzer/base_analyzer.html' %}
+<!-- -->
+{% block title %}Dashboard - PFD Analyzer{%endblock%}
+<!-- -->
+{% block content %}
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="bg-white shadow rounded-lg p-6">
+    <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+    <p class="text-gray-600 mt-1">Overview of your PFD analysis projects</p>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <i class="fas fa-file-pdf text-blue-600 text-2xl"></i>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">
+                Total PDFs
+              </dt>
+              <dd class="text-lg font-medium text-gray-900">
+                {{ total_files }}
+              </dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <i class="fas fa-play text-green-600 text-2xl"></i>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">
+                Total Runs
+              </dt>
+              <dd class="text-lg font-medium text-gray-900">
+                {{ total_runs }}
+              </dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="bg-white shadow rounded-lg p-6">
+    <h2 class="text-lg font-medium text-gray-900 mb-4">Actions</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <a
+        href="{% url 'pfd_analyzer:new_run' %}"
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
+      >
+        <i class="fas fa-plus mr-2"></i>
+        Create New Run
+      </a>
+      <a
+        href="{% url 'pfd_analyzer:run_list' %}"
+        class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+      >
+        <i class="fas fa-list mr-2"></i>
+        View All Runs
+      </a>
+      <a
+        href="{% url 'pfd_analyzer:upload_pdf' %}"
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+      >
+        <i class="fas fa-upload mr-2"></i>
+        Upload New PDF
+      </a>
+      <a
+        href="{% url 'pfd_analyzer:file_list' %}"
+        class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+      >
+        <i class="fas fa-list mr-2"></i>
+        View All Files
+      </a>
+    </div>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Recent Runs -->
+    <div class="bg-white shadow rounded-lg">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900">Recent Runs</h3>
+      </div>
+      <div class="divide-y divide-gray-200">
+        {% for run in recent_runs %}
+        <div class="px-6 py-4 hover:bg-gray-50">
+          <div class="flex items-center justify-between">
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-gray-900 truncate">
+                <a
+                  href="{% url 'pfd_analyzer:run_detail' run.pk %}"
+                  class="hover:text-blue-600"
+                >
+                  Run #{{ run.pk }} - {{ run.pfd_file.name }}
+                </a>
+              </p>
+              <p class="text-sm text-gray-500">
+                {{ run.model }} • {{ run.created_at|date:"M d, Y" }}
+                <!-- -->{% if run.is_locked %}<i
+                  class="fas fa-lock ml-1 text-red-500"
+                ></i
+                >{% endif %}
+              </p>
+            </div>
+            <div class="text-sm text-gray-500">Acc: {{ run.accuracy }}%</div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="px-6 py-4 text-center text-gray-500">
+          No runs yet.
+          <a
+            href="{% url 'pfd_analyzer:new_run' %}"
+            class="text-blue-600 hover:underline"
+            >Create your first run</a
+          >
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Recent Files -->
+    <div class="bg-white shadow rounded-lg">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900">Recent Files</h3>
+      </div>
+      <div class="divide-y divide-gray-200">
+        {% for file in recent_files %}
+        <div class="px-6 py-4 hover:bg-gray-50">
+          <div class="flex items-center justify-between">
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-gray-900 truncate">
+                <a
+                  href="{% url 'pfd_analyzer:pfd_file_detail' file.pk %}"
+                  class="hover:text-blue-600"
+                >
+                  {{ file.name }}
+                </a>
+              </p>
+              <p class="text-sm text-gray-500">
+                Uploaded {{ file.uploaded_at|date:"M d, Y" }} by
+                <!-- -->
+                {{file.uploaded_by.first_name|default:file.uploaded_by.username}}
+              </p>
+            </div>
+            <div class="text-sm text-gray-500">
+              {{ file.runs.count }} run{{ file.runs.count|pluralize }}
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="px-6 py-4 text-center text-gray-500">
+          No files yet.
+          <a
+            href="{% url 'pfd_analyzer:upload_pdf' %}"
+            class="text-blue-600 hover:underline"
+            >Upload your first PDF</a
+          >
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,79 @@
+# Core Django
+Django==5.2.1
+asgiref==3.8.1
+sqlparse==0.5.3
+
+# Database
+psycopg2-binary==2.9.9
+dj-database-url==2.1.0
+
+# Django extensions (from your INSTALLED_APPS)
+django-browser-reload==1.18.0
+django-tailwind==4.0.1
+
+# ASGI Server
+uvicorn[standard]==0.34.2
+h11==0.14.0
+python-dotenv==1.0.1
+
+# Markdown processing
+markdown2==2.5.3
+
+# AI/LLM packages - Updated versions from your environment
+anthropic==0.49.0
+openai==1.68.2
+langchain==0.3.26  # Updated
+langchain-core==0.3.68  # Updated
+langchain-anthropic==0.3.7
+langchain-openai==0.3.5
+langchain-google-genai==2.1.7  # New
+langchain-text-splitters==0.3.8
+langsmith==0.4.5  # Works with langchain 0.3.26
+tiktoken==0.9.0
+
+# LangGraph (if you use it)
+langgraph==0.4.7
+langgraph-checkpoint==2.0.26
+langgraph-checkpoint-sqlite==2.0.10
+
+# Google AI dependencies
+google-ai-generativelanguage==0.6.18
+google-api-core==2.25.1
+google-auth==2.40.3
+googleapis-common-protos==1.70.0
+proto-plus==1.26.1
+protobuf==6.31.1
+grpcio==1.73.1
+grpcio-status==1.73.1
+cachetools==5.5.2
+pyasn1==0.6.1
+pyasn1-modules==0.4.2
+rsa==4.9.1
+
+# Supporting packages for AI
+pydantic==2.10.6
+pydantic-core==2.27.2
+httpx==0.27.0
+httpcore==1.0.2
+anyio==4.6.2
+sniffio==1.3.0
+tenacity==9.0.0
+typing-extensions==4.12.2
+orjson==3.10.16
+
+# File processing (if you process DXF files)
+ezdxf==1.4.2
+
+# Utilities
+python-dateutil==2.9.0.post0
+requests==2.32.3
+urllib3==2.3.0
+certifi==2025.1.31
+charset-normalizer==3.4.2
+idna==3.7
+celery==5.3.4
+redis==5.0.1
+
+# Future: Cloud storage (uncomment when ready)
+# django-storages[google]==1.14.2
+# google-cloud-storage==2.10.0

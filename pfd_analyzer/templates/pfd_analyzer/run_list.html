@@ -1,0 +1,234 @@
+<!-- templates/pfd_analyzer/run_list.html -->
+{% extends 'pfd_analyzer/base_analyzer.html' %}
+<!---->
+{% block title %}Runs - PFD Analyzer{% endblock %}
+<!-- -->
+{% block content %}
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="bg-white shadow rounded-lg p-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Analysis Runs</h1>
+        <p class="text-gray-600 mt-1">
+          View and manage all your PFD analysis runs
+        </p>
+      </div>
+      <a
+        href="{% url 'pfd_analyzer:new_run' %}"
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
+      >
+        <i class="fas fa-plus mr-2"></i>
+        New Run
+      </a>
+    </div>
+  </div>
+
+  <!-- Runs List -->
+  <div class="bg-white shadow rounded-lg">
+    {% if runs %}
+    <div class="divide-y divide-gray-200">
+      {% for run in runs %}
+      <div class="p-6 hover:bg-gray-50">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-4">
+            <div class="flex-shrink-0">
+              <div
+                class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center"
+              >
+                <span class="text-blue-600 font-semibold text-sm"
+                  >#{{ run.pk }}</span
+                >
+              </div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h3 class="text-lg font-medium text-gray-900 truncate">
+                <a
+                  href="{% url 'pfd_analyzer:run_detail' run.pk %}"
+                  class="hover:text-blue-600"
+                >
+                  {% if run.name %}{{ run.name }}{% else %}
+                  <!-- -->
+                  {{ run.pfd_file.name }}{% endif %}
+                </a>
+              </h3>
+              <div
+                class="flex items-center space-x-4 text-sm text-gray-500 mt-1"
+              >
+                <span>
+                  <i class="fas fa-robot mr-1"></i>
+                  {{ run.model }}
+                </span>
+
+                {% if run.related_run %}
+                <span>
+                  <i class="fas fa-link mr-1"></i>
+                  Related to Run #{{ run.related_run.pk }}
+                </span>
+                {% endif %}
+
+                <span>
+                  <i class="fas fa-user mr-1"></i>
+                  {{run.created_by.first_name|default:run.created_by.username}}
+                </span>
+                <span>
+                  <i class="fas fa-calendar mr-1"></i>
+                  {{ run.created_at|date:"M d, Y" }}
+                </span>
+                {% if run.is_locked %}
+                <span
+                  class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800"
+                >
+                  <i class="fas fa-lock mr-1"></i> Locked
+                </span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center">
+            <!-- Metrics -->
+            <div class="hidden md:flex items-center space-x-4 text-sm mr-8">
+              <div class="text-center">
+                <div class="font-semibold text-gray-900">
+                  {{ run.accuracy }}%
+                </div>
+                <div class="text-gray-500">Accuracy</div>
+              </div>
+              <div class="text-center">
+                <div class="font-semibold text-gray-900">
+                  {{ run.precision }}%
+                </div>
+                <div class="text-gray-500">Precision</div>
+              </div>
+              <div class="text-center">
+                <div class="font-semibold text-gray-900">{{ run.recall }}%</div>
+                <div class="text-gray-500">Recall</div>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center space-x-2">
+              <a
+                href="{% url 'pfd_analyzer:run_edit' run.pk %}"
+                class="text-gray-400 hover:text-gray-600"
+                title="Edit"
+              >
+                <i class="fas fa-edit"></i>
+              </a>
+              <a
+                href="{% url 'pfd_analyzer:run_detail' run.pk %}"
+                class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+              >
+                View Details
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div
+      class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6"
+    >
+      <div class="flex-1 flex justify-between sm:hidden">
+        {% if page_obj.has_previous %}
+        <a
+          href="?page={{ page_obj.previous_page_number }}"
+          class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+        >
+          Previous
+        </a>
+        {% endif %} {% if page_obj.has_next %}
+        <a
+          href="?page={{ page_obj.next_page_number }}"
+          class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+        >
+          Next
+        </a>
+        {% endif %}
+      </div>
+      <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+        <div>
+          <p class="text-sm text-gray-700">
+            Showing
+            <span class="font-medium">{{ page_obj.start_index }}</span>
+            to
+            <span class="font-medium">{{ page_obj.end_index }}</span>
+            of
+            <span class="font-medium">{{ page_obj.paginator.count }}</span>
+            results
+          </p>
+        </div>
+        <div>
+          <nav
+            class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+            aria-label="Pagination"
+          >
+            {% if page_obj.has_previous %}
+            <a
+              href="?page={{ page_obj.previous_page_number }}"
+              class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+            >
+              <i class="fas fa-chevron-left"></i>
+            </a>
+            {% endif %} {% for num in page_obj.paginator.page_range %}
+            <!-- -->
+            {% if page_obj.number == num %}
+            <span
+              class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600"
+            >
+              {{ num }}
+            </span>
+            {% else %}
+            <a
+              href="?page={{ num }}"
+              class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              {{ num }}
+            </a>
+            {% endif %} {% endfor %} {% if page_obj.has_next %}
+            <a
+              href="?page={{ page_obj.next_page_number }}"
+              class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+            >
+              <i class="fas fa-chevron-right"></i>
+            </a>
+            {% endif %}
+          </nav>
+        </div>
+      </div>
+    </div>
+    {% endif %} {% else %}
+    <!-- Empty State -->
+    <div class="text-center py-12">
+      <i class="fas fa-play-circle text-gray-400 text-6xl mb-4"></i>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">
+        No analysis runs yet
+      </h3>
+      <p class="text-gray-500 mb-6">
+        Create your first run to start analyzing PFD files.
+      </p>
+      <div class="space-x-3">
+        <a
+          href="{% url 'pfd_analyzer:upload_pdf' %}"
+          class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+        >
+          <i class="fas fa-upload mr-2"></i>
+          Upload PDF First
+        </a>
+        <a
+          href="{% url 'pfd_analyzer:new_run' %}"
+          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
+        >
+          <i class="fas fa-plus mr-2"></i>
+          Create First Run
+        </a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,195 @@
+<!-- pfd_bench/templates/pfd_bench/run_review.html -->
+{% extends 'pfd_bench/base_bench.html' %}
+<!-- -->
+{% load static %} {% block content %}
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white shadow-sm">
+    <div class="px-6 py-4 flex items-center justify-between">
+      <div>
+        <h1 class="text-xl font-bold text-gray-900">{{ run.name }}</h1>
+        <p class="text-sm text-gray-500 mt-1">
+          Reviewing
+          <span id="progress">1 of {{ total_equipment }}</span> equipment items
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Layout -->
+  <div class="flex">
+    <!-- Collapsible Sidebar -->
+    <div
+      id="sidebar"
+      class="w-64 bg-gray-100 shadow-lg transition-all duration-300 overflow-y-auto h-[calc(100vh-64px)]"
+    >
+      <div class="p-4">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="font-semibold text-gray-700">Equipment List</h2>
+          <button
+            onclick="toggleSidebar()"
+            class="text-gray-500 hover:text-gray-700"
+          >
+            <i class="fas fa-chevron-left" id="sidebar-toggle-icon"></i>
+          </button>
+        </div>
+        <div id="equipment-list" class="space-y-1">
+          <!-- Will be populated by HTMX -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Collapsed Sidebar State -->
+    <div id="sidebar-collapsed" class="hidden">
+      <button
+        onclick="toggleSidebar()"
+        class="mt-4 ml-2 p-2 bg-gray-200 rounded-r-lg hover:bg-gray-300"
+      >
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 p-4">
+      <div class="max-w-4xl mx-auto">
+        <div
+          id="review-content"
+          hx-get="{% url 'pfd_bench:get_equipment_row' run.id %}"
+          hx-trigger="load"
+          hx-swap="outerHTML"
+          hx-vals='{"index": 0}'
+        >
+          <!-- Content loads here -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let hasUnsavedChanges = false;
+  let originalContent = {};
+
+  function toggleSidebar() {
+    const sidebar = document.getElementById("sidebar");
+    const collapsed = document.getElementById("sidebar-collapsed");
+    const icon = document.getElementById("sidebar-toggle-icon");
+
+    if (sidebar.classList.contains("w-64")) {
+      sidebar.classList.remove("w-64");
+      sidebar.classList.add("w-0", "overflow-hidden");
+      collapsed.classList.remove("hidden");
+    } else {
+      sidebar.classList.add("w-64");
+      sidebar.classList.remove("w-0", "overflow-hidden");
+      collapsed.classList.add("hidden");
+    }
+  }
+
+  function jumpToRow(index) {
+    // Convert to integer and validate
+    index = parseInt(index);
+
+    // Check bounds
+    if (isNaN(index) || index < 0 || index >= {{ total_equipment }}) {
+      alert("Please enter a row number between 1 and {{ total_equipment }}");
+      document.getElementById("goto-row").value = "{{ equipment.index|add:1 }}"; // Reset to current
+      return;
+    }
+
+    htmx.ajax("GET", '{% url "pfd_bench:get_equipment_row" run.id %}', {
+      target: "#review-content",
+      swap: "outerHTML",
+      values: { index: index },
+    });
+  }
+
+  function trackChanges() {
+    const editables = document.querySelectorAll('[contenteditable="true"]');
+    hasUnsavedChanges = false;
+    originalContent = {};
+
+    editables.forEach((el) => {
+      originalContent[el.id] = el.innerText.trim();
+
+      el.addEventListener("input", function () {
+        const anyChanged = Array.from(editables).some(
+          (elem) => elem.innerText.trim() !== originalContent[elem.id]
+        );
+        hasUnsavedChanges = anyChanged;
+        updateSubmitButton();
+      });
+    });
+    updateSubmitButton();
+  }
+
+  function updateSubmitButton() {
+    const submitBtn = document.getElementById("submit-changes-btn");
+    if (submitBtn) {
+      submitBtn.disabled = !hasUnsavedChanges;
+      submitBtn.classList.toggle("opacity-50", !hasUnsavedChanges);
+      submitBtn.classList.toggle("cursor-not-allowed", !hasUnsavedChanges);
+    }
+  }
+
+  function getChangedValues() {
+    const changes = {};
+    const editables = document.querySelectorAll('[contenteditable="true"]');
+    editables.forEach((el) => {
+      // Always include current values, whether changed or not
+      changes[el.id] = el.innerText.trim();
+    });
+    return changes;
+  }
+
+  // Initialize on HTMX content swap
+  document.body.addEventListener("htmx:afterSwap", function (event) {
+    if (event.detail.target.id === "review-content") {
+      setTimeout(trackChanges, 100); // Small delay to ensure content is rendered
+    }
+  });
+
+  // Intercept HTMX form submission to include contenteditable values
+  document.body.addEventListener("htmx:configRequest", function (event) {
+    // Check if this is the review form submission
+    if (event.detail.elt.id === "review-form") {
+      const action = event.detail.parameters.action;
+
+      // For submit_changes or save actions, include the contenteditable values
+      if (action === "submit_changes" || action === "save") {
+        const changes = getChangedValues();
+        // Add the changed values to the request parameters
+        Object.assign(event.detail.parameters, changes);
+      }
+    }
+  });
+
+  // Handle navigation warnings
+  document.body.addEventListener("htmx:beforeRequest", function (event) {
+    if (event.detail.elt.hasAttribute("hx-get") && hasUnsavedChanges) {
+      // Check if it's a navigation button (not the form)
+      const isNavigation =
+        event.detail.elt.tagName === "BUTTON" &&
+        !event.detail.elt.closest("form");
+
+      if (isNavigation) {
+        if (!confirm("You have unsaved changes. Continue without saving?")) {
+          event.preventDefault();
+        }
+      }
+    }
+  });
+</script>
+
+<style>
+  [contenteditable="true"]:hover {
+    background-color: #f3f4f6;
+    cursor: text;
+  }
+  [contenteditable="true"]:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+    background-color: white;
+  }
+</style>
+{% endblock %}

@@ -1,0 +1,59 @@
+<!-- pfd_bench/templates/pfd_bench/partials/runs_list.html -->
+<div class="divide-y">
+  {% for run in runs %}
+  <div
+    class="p-4 hover:bg-gray-50 cursor-pointer group"
+    onclick="window.location.href='{% if run.status == 'completed' %}{% url 'pfd_bench:run_completed' run.id %}{% elif run.status == 'generating_description' %}{% url 'pfd_bench:run_processing' run.id %}{% else %}{% url 'pfd_bench:run_review' run.id %}{% endif %}'"
+  >
+    >
+    <div class="flex items-start justify-between">
+      <div class="flex-1">
+        <div class="flex items-center gap-2">
+          <h3 class="font-medium text-gray-900">{{ run.name }}</h3>
+          {% if run.has_modifications %}
+          <i
+            class="fas fa-edit text-blue-500 text-sm"
+            title="Has modifications"
+          ></i>
+          {% endif %}
+        </div>
+
+        <div class="mt-1 text-sm text-gray-500">From: {{ run.file.name }}</div>
+
+        <div class="mt-1 text-xs text-gray-400">
+          Created {{run.created_at|date:"M d, Y"}} by
+          {{run.created_by.username}}
+        </div>
+
+        {% if run.progress_display %}
+        <div class="mt-2 text-sm text-blue-600">{{ run.progress_display }}</div>
+        {% endif %}
+      </div>
+
+      <div class="flex items-center gap-2">
+        <!-- Status Badge -->
+        <span
+          class="px-2 py-1 text-xs rounded-full {% if run.status == 'completed' %}bg-green-100 text-green-800 {% elif run.status == 'processing' %}bg-yellow-100 text-yellow-800 {% elif run.status == 'generating_description' %}bg-purple-100 text-purple-800 {% elif run.status == 'draft' %}bg-yellow-100 bg-yellow-800 {% elif run.status == 'failed' %}bg-red-100 text-red-800 {% elif run.status in 'ready_for_review,under_review' %}bg-blue-100 text-blue-800 {% else %}bg-gray-100 text-gray-800{% endif %}"
+        >
+          {{ run.get_status_display }}
+        </span>
+
+        <!-- Delete Button -->
+        <button
+          class="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700"
+          hx-delete="{% url 'pfd_bench:delete_run' run.id %}"
+          hx-confirm="Are you sure you want to delete this run?"
+          hx-target="#runs-list"
+          onclick="event.stopPropagation()"
+        >
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="p-8 text-center text-gray-500">
+    No runs found. Start a new run to begin.
+  </div>
+  {% endfor %}
+</div>

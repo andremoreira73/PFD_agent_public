@@ -1,0 +1,19 @@
+## Process Description
+
+### Feed Preparation
+
+The process begins with two input streams from the client interfacing with the system at Reactor 010 (03-R010). These streams are combined within the reactor, which is equipped with an agitator (03-A010) that ensures the homogeneity of the feed material within Reactor 010. The mixing is necessary to prepare the feed for the subsequent treatment steps.
+
+### Thickening and Overflow Management
+
+The output from Reactor 010 is directed towards Pump 020 (03-P020), which serves to transport the process stream, now presumably containing partially reacted materials, to the Thickener 030 (03-V030). The thickener is integral for increasing the solid content of the slurry by allowing the denser particles to settle, separating the sludge from the overflow. Interestingly, the thickening process includes an overflow line directed to Vessel 060 (03-V060), which is designed to capture excess liquids not settled in the thickener.
+
+### Solid-Liquid Separation
+
+Pump 040 (03-P040) conveys the concentrated slurry from Thickener 030 directly into Cyclone 050 (03-S050). Within the cyclone, the main purpose is the centrifugal separation of solids from liquids, providing two distinct outlet streams: the main process stream and a secondary stream, both directed back to the client. This separation finalizes the particle removal process, isolating the valuable material aimed for client use.
+
+### Overflow and Auxiliary Liquid Handling
+
+The vessel indicated as 03-V060 serves as an overflow container receiving flows both from the thickener and the reactor. However, this vessel does not presently show any outlet streams, denoting its function as a terminus for excess liquid handling under existing process conditions. It is also noted that an additional inlet enters this vessel from an unconnected line, highlighting the vessel's role in capturing unforeseen overflow or services streams, possibly from an external or future-connected system.
+
+In summary, this process effectively integrates stages of reaction, thickening, and solid-liquid separation, using the coordinated operation of reactor, pumps, thickener, and cyclone, backed by auxiliary overflow management with the vessel in question, to drive feed material through to client specifications.

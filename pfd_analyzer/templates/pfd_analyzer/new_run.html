@@ -1,0 +1,395 @@
+<!-- templates/pfd_analyzer/new_run.html -->
+{% extends 'pfd_analyzer/base_analyzer.html' %}
+<!---->
+{% block title %}New Run - PFD Analyzer
+<!---->
+{% endblock %}
+<!---->
+{% block content %}
+<div class="max-w-4xl mx-auto">
+  <!-- Header -->
+  <div class="bg-white shadow rounded-lg p-6 mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Create New Run</h1>
+    <p class="text-gray-600 mt-1">
+      Create a new evaluation run for a PFD analysis
+    </p>
+  </div>
+
+  <!-- Main Form -->
+  <div class="bg-white shadow rounded-lg p-6">
+    <form method="post" class="space-y-8">
+      {% csrf_token %}
+
+      <!-- Basic Information -->
+      <div>
+        <h2 class="text-lg font-medium text-gray-900 mb-4 mt-4">
+          Basic Information
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- PDF File Selection -->
+          <div class="md:col-span-2">
+            <label
+              for="{{ form.pfd_file.id_for_label }}"
+              class="block text-sm font-medium text-gray-700 mb-2"
+            >
+              PFD File <span class="text-red-500">*</span>
+            </label>
+            {{ form.pfd_file }} {% if form.pfd_file.errors %}
+            <p class="mt-1 text-sm text-red-600">
+              {{ form.pfd_file.errors.0 }}
+            </p>
+            {% endif %}
+          </div>
+
+          <!-- Run Name -->
+          <div>
+            <label
+              for="{{ form.name.id_for_label }}"
+              class="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Run Name
+            </label>
+            {{ form.name }} {% if form.name.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+            {% endif %}
+            <p class="mt-1 text-sm text-gray-500">
+              Optional: Give this run a descriptive name
+            </p>
+          </div>
+
+          <!-- Related Run -->
+          <div>
+            <label
+              for="{{ form.related_run.id_for_label }}"
+              class="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Related Run
+            </label>
+
+            <!-- Hidden field to store selected run ID -->
+            <input
+              type="hidden"
+              name="related_run"
+              id="id_related_run"
+              value="{{ form.related_run.value|default:'' }}"
+            />
+
+            <!-- Search input -->
+            <input
+              type="text"
+              placeholder="Search for a run..."
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              hx-get="{% url 'pfd_analyzer:search_runs' %}"
+              hx-trigger="keyup changed delay:300ms"
+              hx-target="#run-results"
+              hx-include="this"
+              name="search_query"
+            />
+
+            <!-- Results container -->
+            <div id="run-results" class="mt-2"></div>
+
+            {% if form.related_run.errors %}
+            <p class="mt-1 text-sm text-red-600">
+              {{ form.related_run.errors.0 }}
+            </p>
+            {% endif %}
+          </div>
+
+          <!-- Model -->
+          <div>
+            <label
+              for="{{ form.model.id_for_label }}"
+              class="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Model <span class="text-red-500">*</span>
+            </label>
+            {{ form.model }} {% if form.model.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.model.errors.0 }}</p>
+            {% endif %}
+          </div>
+
+          <!-- Response ID -->
+          <div>
+            <label
+              for="{{ form.response_id.id_for_label }}"
+              class="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Response ID
+            </label>
+            {{ form.response_id }} {% if form.response_id.errors %}
+            <p class="mt-1 text-sm text-red-600">
+              {{ form.response_id.errors.0 }}
+            </p>
+            {% endif %}
+          </div>
+
+          <!-- Prompt System -->
+          <div>
+            <label
+              for="{{ form.prompt_system.id_for_label }}"
+              class="block text-sm font-medium text-gray-700 mb-2"
+            >
+              System Prompt Version <span class="text-red-500">*</span>
+            </label>
+            {{ form.prompt_system }} {% if form.prompt_system.errors %}
+            <p class="mt-1 text-sm text-red-600">
+              {{ form.prompt_system.errors.0 }}
+            </p>
+            {% endif %}
+            <p class="mt-1 text-sm text-gray-500">e.g., 2a, 3_worker</p>
+          </div>
+
+          <!-- Prompt User -->
+          <div>
+            <label
+              for="{{ form.prompt_user.id_for_label }}"
+              class="block text-sm font-medium text-gray-700 mb-2"
+            >
+              User Prompt Version <span class="text-red-500">*</span>
+            </label>
+            {{ form.prompt_user }} {% if form.prompt_user.errors %}
+            <p class="mt-1 text-sm text-red-600">
+              {{ form.prompt_user.errors.0 }}
+            </p>
+            {% endif %}
+            <p class="mt-1 text-sm text-gray-500">e.g., 2b, 4_final</p>
+          </div>
+
+          <!-- Parameters -->
+          <div class="md:col-span-2">
+            <label
+              for="{{ form.parameters.id_for_label }}"
+              class="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Parameters <span class="text-red-500">*</span>
+            </label>
+            {{ form.parameters }} {% if form.parameters.errors %}
+            <p class="mt-1 text-sm text-red-600">
+              {{ form.parameters.errors.0 }}
+            </p>
+            {% endif %}
+          </div>
+          <!-- Relationship Description -->
+          <div class="md:col-span-2">
+            <label
+              for="{{ form.relationship_description.id_for_label }}"
+              class="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Relationship Description
+            </label>
+            {{ form.relationship_description }}
+            <!---->
+            {% if form.relationship_description.errors %}
+            <p class="mt-1 text-sm text-red-600">
+              {{ form.relationship_description.errors.0 }}
+            </p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- LLM Response -->
+      <div>
+        <h2 class="text-lg font-medium text-gray-900 mb-4 mt-4">
+          LLM Response
+        </h2>
+        <div>
+          <label
+            for="{{ form.llm_output_markdown.id_for_label }}"
+            class="block text-sm font-medium text-gray-700 mb-2"
+          >
+            LLM Output (Markdown) <span class="text-red-500">*</span>
+          </label>
+          {{ form.llm_output_markdown }} {%if form.llm_output_markdown.errors%}
+          <p class="mt-1 text-sm text-red-600">
+            {{ form.llm_output_markdown.errors.0 }}
+          </p>
+          {% endif %}
+          <p class="mt-1 text-sm text-gray-500">
+            Paste the complete LLM response here. You can lock this field after
+            saving to prevent accidental edits.
+          </p>
+        </div>
+      </div>
+
+      <!-- Token Usage -->
+      <div>
+        <h2 class="text-lg font-medium text-gray-900 mb-4 mt-4">Token Usage</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <label
+              for="{{ form.tokens_input.id_for_label }}"
+              class="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Input Tokens
+            </label>
+            {{ form.tokens_input }} {% if form.tokens_input.errors %}
+            <p class="mt-1 text-sm text-red-600">
+              {{ form.tokens_input.errors.0 }}
+            </p>
+            {% endif %}
+          </div>
+          <div>
+            <label
+              for="{{ form.tokens_output_text.id_for_label }}"
+              class="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Output Tokens (Text)
+            </label>
+            {{ form.tokens_output_text }} {%if form.tokens_output_text.errors%}
+            <p class="mt-1 text-sm text-red-600">
+              {{ form.tokens_output_text.errors.0 }}
+            </p>
+            {% endif %}
+          </div>
+          <div>
+            <label
+              for="{{ form.tokens_output_reasoning.id_for_label }}"
+              class="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Output Tokens (Reasoning)
+            </label>
+            {{ form.tokens_output_reasoning }}
+            <!-- -->
+            {%if form.tokens_output_reasoning.errors%}
+            <p class="mt-1 text-sm text-red-600">
+              {{ form.tokens_output_reasoning.errors.0 }}
+            </p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Evaluation Metrics -->
+      <div>
+        <h2 class="text-lg font-medium text-gray-900 mb-4 mt-4">
+          Evaluation Metrics
+        </h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div>
+            <label
+              for="{{ form.true_positives.id_for_label }}"
+              class="block text-sm font-medium text-gray-700 mb-2"
+            >
+              True Positives
+            </label>
+            {{ form.true_positives }} {% if form.true_positives.errors %}
+            <p class="mt-1 text-sm text-red-600">
+              {{ form.true_positives.errors.0 }}
+            </p>
+            {% endif %}
+          </div>
+          <div>
+            <label
+              for="{{ form.false_positives.id_for_label }}"
+              class="block text-sm font-medium text-gray-700 mb-2"
+            >
+              False Positives
+            </label>
+            {{ form.false_positives }} {% if form.false_positives.errors %}
+            <p class="mt-1 text-sm text-red-600">
+              {{ form.false_positives.errors.0 }}
+            </p>
+            {% endif %}
+          </div>
+          <div>
+            <label
+              for="{{ form.true_negatives.id_for_label }}"
+              class="block text-sm font-medium text-gray-700 mb-2"
+            >
+              True Negatives
+            </label>
+            {{ form.true_negatives }} {% if form.true_negatives.errors %}
+            <p class="mt-1 text-sm text-red-600">
+              {{ form.true_negatives.errors.0 }}
+            </p>
+            {% endif %}
+          </div>
+          <div>
+            <label
+              for="{{ form.false_negatives.id_for_label }}"
+              class="block text-sm font-medium text-gray-700 mb-2"
+            >
+              False Negatives
+            </label>
+            {{ form.false_negatives }} {% if form.false_negatives.errors %}
+            <p class="mt-1 text-sm text-red-600">
+              {{ form.false_negatives.errors.0 }}
+            </p>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Text Style Score -->
+        <div class="mt-4">
+          <label
+            for="{{ form.text_style_score.id_for_label }}"
+            class="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Text Style Score (0-100)
+          </label>
+          <div class="max-w-xs">
+            {{ form.text_style_score }} {% if form.text_style_score.errors %}
+            <p class="mt-1 text-sm text-red-600">
+              {{ form.text_style_score.errors.0 }}
+            </p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Comments -->
+      <div>
+        <h2 class="text-lg font-medium text-gray-900 mb-4 mt-4">
+          Comments & Analysis
+        </h2>
+        <div>
+          <label
+            for="{{ form.comments_markdown.id_for_label }}"
+            class="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Comments (Markdown)
+          </label>
+          {{ form.comments_markdown }} {% if form.comments_markdown.errors %}
+          <p class="mt-1 text-sm text-red-600">
+            {{ form.comments_markdown.errors.0 }}
+          </p>
+          {% endif %}
+          <p class="mt-1 text-sm text-gray-500">
+            Add your analysis, notes, and collaborative comments here. This
+            field is always editable.
+          </p>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div
+        class="flex items-center justify-between pt-6 border-t border-gray-200"
+      >
+        <a
+          href="{% url 'pfd_analyzer:dashboard' %}"
+          class="text-gray-600 hover:text-gray-900 text-sm font-medium"
+        >
+          <i class="fas fa-arrow-left mr-1"></i> Back to Dashboard
+        </a>
+        <div class="space-x-3">
+          <a
+            href="{% url 'pfd_analyzer:dashboard' %}"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+          >
+            Cancel
+          </a>
+          <button
+            type="submit"
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          >
+            <i class="fas fa-save mr-2"></i>
+            Create Run
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

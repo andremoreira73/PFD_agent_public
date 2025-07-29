@@ -1,0 +1,20 @@
+<!-- pfd_analyzer/templates/pfd_analyzer/base_analyzer.html -->
+{% extends 'base.html' %} {% block nav_brand %}
+<h1 class="text-xl font-semibold text-gray-900">PFD Analyzer</h1>
+{% endblock %} {% block nav_links %}
+<div class="flex items-center space-x-4">
+  <a
+    href="{% url 'home' %}"
+    class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+  >
+    <i class="fas fa-th mr-1"></i> All Apps
+  </a>
+
+  <a
+    href="{% url 'pfd_analyzer:dashboard' %}"
+    class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+  >
+    <i class="fas fa-tachometer-alt mr-1"></i> Dashboard
+  </a>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+<!-- pfd_bench/templates/pfd_bench/partials/equipment_with_actions.html -->
+<div id="equipment-wrapper">
+  <!-- Equipment Details -->
+  <div class="mb-6">{% include 'pfd_bench/partials/equipment_row.html' %}</div>
+
+  <!-- Review Actions -->
+  <div>{% include 'pfd_bench/partials/review_actions.html' %}</div>
+
+  <!-- Update progress indicator -->
+  <div hx-swap-oob="innerHTML:#progress-indicator">
+    <span class="font-medium">{{ current_index|add:1 }}</span> of {{
+    total_equipment }}
+  </div>
+</div>

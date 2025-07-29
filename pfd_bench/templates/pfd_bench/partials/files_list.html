@@ -1,0 +1,101 @@
+<div class="divide-y" 
+  id="files-list-content"
+  hx-get="{% url 'pfd_bench:files_list' project.id %}"
+  hx-trigger="refresh-files from:body"
+  hx-target="this"
+  hx-swap="outerHTML">
+  {% for file in files %}
+  <div class="p-4 hover:bg-gray-50 group">
+    <div class="flex items-start justify-between">
+      <div class="flex-1">
+        <div class="flex items-center gap-2">
+          <i class="fas fa-file text-gray-400"></i>
+          <h3 class="font-medium text-gray-900">{{ file.name }}</h3>
+          
+          <!-- Show run count for THIS project -->
+          {% if file.runs_count > 0 %}
+          <button class="px-2 py-0.5 text-xs bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200"
+                  hx-get="{% url 'pfd_bench:file_runs_modal' file.id project.id %}"
+                  hx-target="#modal-container"
+                  hx-swap="innerHTML"
+                  title="View runs in this project">
+            {{ file.runs_count }} run{{ file.runs_count|pluralize }} in this project
+          </button>
+          {% endif %}
+          
+          <!-- Show if file is shared with other projects -->
+          {% if file.total_projects > 1 %}
+          <span class="px-2 py-0.5 text-xs bg-purple-100 text-purple-700 rounded-full"
+                title="This file is shared with {{ file.total_projects|add:"-1" }} other project{{ file.total_projects|add:"-1"|pluralize }}">
+            <i class="fas fa-share-alt mr-1"></i>
+            Shared ({{ file.total_projects }} projects)
+          </span>
+          {% endif %}
+        </div>
+
+        <div class="mt-1 text-sm text-gray-500">
+          {{ file.file_size_display }} • Uploaded {{ file.uploaded_at|date:"M d, Y" }}
+        </div>
+        
+        <!-- Show other projects using this file -->
+        {% if file.other_projects %}
+        <div class="mt-1 text-xs text-gray-400">
+          Also in: {% for p in file.other_projects %}{{ p.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Actions with better labels -->
+      <div class="flex items-center gap-2">
+        {% if file.runs_count > 0 %}
+        <span class="text-xs text-gray-400" title="Cannot remove - file has active runs in this project">
+          <i class="fas fa-lock"></i>
+        </span>
+        {% endif %}
+        
+        <button
+          class="{% if file.runs_count > 0 %}opacity-30 cursor-not-allowed{% else %}opacity-0 group-hover:opacity-100{% endif %} text-red-500 hover:text-red-700"
+          {% if file.runs_count == 0 %}
+          hx-delete="{% url 'pfd_bench:delete_file' file.id %}?project_id={{ project.id }}"
+          hx-target="#files-list"
+          hx-confirm="Remove this file from {{ project.name }}?{% if file.total_projects == 1 %} (This will permanently delete the file as it's not used in other projects){% endif %}"
+          {% else %}
+          onclick="alert('Cannot remove: This file has {{ file.runs_count }} active run{{ file.runs_count|pluralize }} in this project. Delete the runs first.')"
+          {% endif %}
+          title="{% if file.total_projects > 1 %}Remove from this project{% else %}Delete file{% endif %}"
+        >
+          <i class="fas fa-{% if file.total_projects > 1 %}unlink{% else %}trash{% endif %}"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="p-8 text-center text-gray-500">No files uploaded yet.</div>
+  {% endfor %}
+</div>
+
+<!-- Enhanced delete confirmation messages -->
+<script>
+document.body.addEventListener('htmx:confirm', function(evt) {
+    // Customize confirmation based on whether file will be permanently deleted
+    if (evt.detail.path.includes('delete_file')) {
+        const isShared = evt.detail.question.includes('not used in other projects');
+        if (!isShared) {
+            evt.detail.question = evt.detail.question.replace('Remove', 'Unlink');
+        }
+    }
+});
+</script>
+
+<!-- Enhanced delete confirmation messages -->
+<script>
+document.body.addEventListener('htmx:confirm', function(evt) {
+    // Customize confirmation based on whether file will be permanently deleted
+    if (evt.detail.path.includes('delete_file')) {
+        const isShared = evt.detail.question.includes('not used in other projects');
+        if (!isShared) {
+            evt.detail.question = evt.detail.question.replace('Remove', 'Unlink');
+        }
+    }
+});
+</script>

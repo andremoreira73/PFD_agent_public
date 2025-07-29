@@ -1,0 +1,85 @@
+<!-- pfd_bench/templates/pfd_bench/partials/file_runs_modal.html -->
+<!-- Updated version that refreshes files list when runs are deleted -->
+<div
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+  hx-on:click="if(event.target === this) this.remove()"
+>
+  <div
+    class="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+  >
+    <h2 class="text-xl font-semibold mb-4">Runs Using "{{ file.name }}"</h2>
+
+    <p class="text-gray-600 mb-4">
+      This file is used by <span id="run-count">{{ runs.count }}</span> run{{
+      runs.count|pluralize }} in this project. Delete these runs first to remove
+      the file.
+    </p>
+
+    <div class="divide-y border rounded-lg" id="runs-container">
+      {% for run in runs %}
+      <div class="p-4 hover:bg-gray-50" id="run-{{ run.id }}">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-medium">{{ run.name }}</h3>
+            <p class="text-sm text-gray-500">
+              Status: {{ run.get_status_display }} • Created {{
+              run.created_at|date:"M d, Y" }} by {{ run.created_by.username }}
+            </p>
+          </div>
+          <div class="flex items-center gap-2">
+            <a
+              href="{% url 'pfd_bench:run_review' run.id %}"
+              class="text-blue-600 hover:text-blue-800 text-sm"
+            >
+              View Run
+            </a>
+            <button
+              hx-delete="{% url 'pfd_bench:delete_run' run.id %}"
+              hx-confirm="Delete run '{{ run.name }}'?"
+              hx-target="#run-{{ run.id }}"
+              hx-swap="outerHTML"
+              hx-on:htmx:after-request="handleRunDeleted()"
+              class="text-red-500 hover:text-red-700"
+            >
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="mt-6 flex justify-between">
+      <p class="text-sm text-gray-500" id="status-message">
+        After deleting all runs, you'll be able to remove this file.
+      </p>
+      <button
+        onclick="this.closest('.fixed').remove(); htmx.trigger('#files-list', 'refresh-files')"
+        class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function handleRunDeleted() {
+    // Update run count
+    const remainingRuns =
+      document.querySelectorAll("#runs-container > div:not(.htmx-swapping)")
+        .length - 1;
+    document.getElementById("run-count").textContent = remainingRuns;
+
+    // If no runs left, update message and refresh files list
+    if (remainingRuns === 0) {
+      document.getElementById("status-message").innerHTML =
+        '<span class="text-green-600"><i class="fas fa-check mr-1"></i>All runs deleted! You can now remove this file.</span>';
+
+      // Trigger files list refresh
+      setTimeout(() => {
+        htmx.trigger("#files-list", "refresh-files");
+      }, 500);
+    }
+  }
+</script>

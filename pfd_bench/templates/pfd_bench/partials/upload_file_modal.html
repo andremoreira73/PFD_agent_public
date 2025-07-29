@@ -1,0 +1,66 @@
+<!-- pfd_bench/templates/pfd_bench/partials/upload_file_modal.html -->
+<div
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+  hx-on:click="if(event.target === this) this.remove()"
+>
+  <div class="bg-white rounded-lg p-6 w-full max-w-md">
+    <h2 class="text-xl font-semibold mb-4">Upload DXF File</h2>
+
+    <form
+      hx-post="{% url 'pfd_bench:upload_file' project.id %}"
+      hx-encoding="multipart/form-data"
+      hx-target="#files-list"
+      hx-on:htmx:after-request="if(event.detail.successful) document.getElementById('modal-container').innerHTML = ''"
+    >
+      {% csrf_token %}
+
+      <div class="mb-6">
+        <div
+          class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center"
+        >
+          <input
+            type="file"
+            name="file"
+            accept=".dxf"
+            required
+            class="hidden"
+            id="file-input"
+            hx-on:change="
+                               const fileName = this.files[0]?.name || 'No file selected';
+                               document.getElementById('file-name').textContent = fileName;
+                               document.getElementById('upload-icon').classList.add('text-blue-600');
+                           "
+          />
+
+          <label for="file-input" class="cursor-pointer">
+            <i
+              id="upload-icon"
+              class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-3 block transition-colors"
+            ></i>
+            <p class="text-gray-600 mb-2">Click to select DXF file</p>
+            <p id="file-name" class="text-sm text-gray-500">No file selected</p>
+          </label>
+        </div>
+
+        <p class="text-xs text-gray-500 mt-2">Only .dxf files are accepted</p>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex gap-3">
+        <button
+          type="submit"
+          class="flex-1 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+        >
+          Upload File
+        </button>
+        <button
+          type="button"
+          onclick="document.getElementById('modal-container').innerHTML = ''"
+          class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
