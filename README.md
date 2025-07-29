@@ -20,10 +20,6 @@ PFD Agent consists of two main applications:
   3. Review and modify the extracted data
   4. Generate detailed process descriptions
 
-**Important note:** We are in process of preparing sample dxf files of common process diagrams that can made available publicly.
-We are bound by a non-disclosure agreement, therefore we cannot publicly share our current test set of diagrams.
-If you have your own Autocad drawings, you only need to save them as a dxf file and use it with this code (see installation).
-
 ### 2. PFD Analyzer
 
 - **Purpose**: Evaluate and analyze LLM performance on PFD analysis tasks
@@ -54,6 +50,10 @@ The system uses a two-stage AI pipeline:
 <img src="img_readme/PFD_architecture_july_2025_g2.png" width="600">
 
 ### Performance Evolution
+
+**Important note:** We are in process of preparing sample dxf files of common process diagrams that can made available publicly.
+We are bound by a non-disclosure agreement, therefore we cannot publicly share our current test set of diagrams.
+If you have your own Autocad drawings, you only need to save them as a dxf file and use it with this code (see installation).
 
 The graph below shows the evaluation results of our PFD analysis system over 60+ test runs on increasingly complex 10 PFD samples:
 
