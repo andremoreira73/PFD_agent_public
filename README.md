@@ -16,6 +16,10 @@ PFD Agent consists of two main applications:
   3. Review and modify the extracted data
   4. Generate detailed process descriptions
 
+**Important note:** We are in process of preparing sample dxf files of common process diagrams that can made available publicly.
+We are bound by a non-disclosure agreement, therefore we cannot publicly share our current test set of diagrams.
+If you have your own Autocad drawings, you only need to save them as a dxf file and use it with this code (see installation).
+
 ### 2. PFD Analyzer
 
 - **Purpose**: Evaluate and analyze LLM performance on PFD analysis tasks
@@ -279,10 +283,10 @@ See example.env
 
 ## License
 
-Proprietary - lyfX.ai
+- **Code**: Licensed under **Apache-2.0**. See `LICENSE`.
+- **Sample data** (files under `data/` or otherwise marked): **CC BY 4.0**. See `data_license/LICENSE`.
 
-This repository is only made public to showcase our capabilities. If you wish to discuss licensing models, please contact us at
-info@lyfx.ai or the author directly.
+If you contribute, you agree that your contributions are licensed under the same terms.
 
 ## Support
 
