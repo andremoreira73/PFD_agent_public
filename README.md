@@ -30,6 +30,44 @@ If you have your own Autocad drawings, you only need to save them as a dxf file 
   - Measure accuracy, precision, and recall
   - Lock runs to prevent accidental modifications
 
+Here's a short description for your README:
+
+## AI Processing Pipeline
+
+The system uses a two-stage AI pipeline:
+
+### Stage 1: Equipment Extraction
+
+1. **Worker Agent**: Analyzes DXF data and creates initial equipment table
+2. **Auditor Agent**: Reviews and corrects the worker's output
+3. **Output**: Structured table of equipment with connectivity
+
+### Stage 2: Description Generation
+
+1. **Generator Agent**: Creates process description from reviewed table
+2. **Output**: Detailed narrative of the process flow
+
+### Performance Evolution
+
+The graph below shows the evaluation results of our PFD analysis system over 60+ test runs on increasingly complex 10 PFD samples:
+
+![image](img_readme/PFD_stats.png)
+
+**Key milestones:**
+
+- **Runs 1-3**: Initial testing phase with suboptimal performance (precision/recall ~75-90%)
+- **Run ~25**: Switched to Gemini 2.5 Pro, achieving immediate performance improvements
+- **Run ~35**: Implemented worker/auditor architecture and expanded file format support
+- **Run ~50**: Added extraction pre-processing capabilities, enabling handling of more complex PFD samples
+- **Run ~55+**: Incorporated "lessons learned" prompt optimization
+
+The system now consistently achieves high precision and recall (>90%) across diverse PFD samples, demonstrating the effectiveness of our iterative development approach combining different LLM models, architectural improvements, and prompt engineering techniques.
+
+### Under Development
+
+Observer parallel workflow that self improves the equipment extraction and description. Planned to be a combination
+of automatic prompt updates and fine-tuning (dataset / suggestion generation, testing, deployment).
+
 ## Tech Stack
 
 - **Backend**: Django 5.2.1
@@ -229,26 +267,6 @@ The application will be available at http://localhost:8000
 4. **Track Relationships**
    - Link related runs to track dependencies
    - Add descriptions of how runs relate
-
-## AI Processing Pipeline
-
-The system uses a two-stage AI pipeline:
-
-### Stage 1: Equipment Extraction
-
-1. **Worker Agent**: Analyzes DXF data and creates initial equipment table
-2. **Auditor Agent**: Reviews and corrects the worker's output
-3. **Output**: Structured table of equipment with connectivity
-
-### Stage 2: Description Generation
-
-1. **Generator Agent**: Creates process description from reviewed table
-2. **Output**: Detailed narrative of the process flow
-
-### Under Development
-
-Observer parallel workflow that self improves the equipment extraction and description. Planned to be a combination
-of automatic prompt updates and fine-tuning (dataset / suggestion generation, testing, deployment).
 
 ## Key Features
 
